@@ -16,7 +16,7 @@
     openMainPage();
     return;
   }
-  navigator.serviceWorker.register("./service-worker-v160.js", { updateViaCache: "none" })
+  navigator.serviceWorker.register("./service-worker-v161.js", { updateViaCache: "none" })
     .then(function (registration) {
       return registration.update().then(function () {
         return navigator.serviceWorker.ready;
