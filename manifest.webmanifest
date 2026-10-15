@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Muazzin Saheb",
+  "short_name": "Muazzin",
+  "description": "Muazzin Saheb website",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#081f45",
+  "theme_color": "#173f91",
+  "icons": [
+    {
+      "src": "./file_00000000543081faa661bcf1dd8abc6f.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
