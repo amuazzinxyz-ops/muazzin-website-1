@@ -18,10 +18,15 @@ self.addEventListener("fetch", event => {
         const patch = '<style id="v252-app-install-button-restore">#pwaInstallBtn{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}</style>';
         if (!html.includes('id="v252-app-install-button-restore"')) {
           const patched = html.includes("</body>") ? html.replace("</body>", patch + "</body>") : html + patch;
+          const headers = new Headers(response.headers);
+          headers.delete("content-length");
+          headers.delete("content-encoding");
+          headers.delete("content-range");
+          headers.delete("etag");
           return new Response(patched, {
             status: response.status,
             statusText: response.statusText,
-            headers: response.headers
+            headers
           });
         }
       }
