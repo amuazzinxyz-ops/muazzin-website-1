@@ -8,52 +8,17 @@
 <link rel="manifest" href="./manifest-v158.webmanifest">
 <link rel="icon" type="image/png" href="./original%20masjid%20image%20.png">
 <link rel="apple-touch-icon" href="./original%20masjid%20image%20.png">
+<meta http-equiv="refresh" content="0;url=./New%20Muazzin%20Saheb%20.html">
 <script>
 (function () {
-  var target = "./New%20Muazzin%20Saheb%20.html";
-  function openMainPage() { window.location.replace(target); }
-  if (!("serviceWorker" in navigator)) {
-    openMainPage();
-    return;
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker-v161.js", { updateViaCache: "none" })
+      .then(function (registration) {
+        registration.update().catch(function () {});
+      })
+      .catch(function () {});
   }
-  function waitForV161(registration) {
-    return new Promise(function (resolve) {
-      var finished = false;
-      var timeout = setTimeout(done, 10000);
-      function done() {
-        if (finished) return;
-        finished = true;
-        clearTimeout(timeout);
-        resolve();
-      }
-      function check(worker) {
-        if (!worker) return;
-        function inspect() {
-          if (worker.state === "activated" && /service-worker-v161\.js(?:$|\?)/.test(worker.scriptURL)) done();
-        }
-        inspect();
-        worker.addEventListener("statechange", inspect);
-      }
-      check(registration.active);
-      check(registration.waiting);
-      check(registration.installing);
-      registration.addEventListener("updatefound", function () {
-        check(registration.installing);
-      });
-      navigator.serviceWorker.addEventListener("controllerchange", function () {
-        if (navigator.serviceWorker.controller &&
-            /service-worker-v161\.js(?:$|\?)/.test(navigator.serviceWorker.controller.scriptURL)) done();
-      });
-    });
-  }
-  navigator.serviceWorker.register("./service-worker-v161.js", { updateViaCache: "none" })
-    .then(function (registration) {
-      return registration.update().catch(function () {}).then(function () {
-        return waitForV161(registration);
-      });
-    })
-    .then(openMainPage)
-    .catch(openMainPage);
+  window.location.replace("./New%20Muazzin%20Saheb%20.html");
 })();
 </script>
 </head>
