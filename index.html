@@ -16,10 +16,40 @@
     openMainPage();
     return;
   }
+  function waitForV161(registration) {
+    return new Promise(function (resolve) {
+      var finished = false;
+      var timeout = setTimeout(done, 10000);
+      function done() {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout);
+        resolve();
+      }
+      function check(worker) {
+        if (!worker) return;
+        function inspect() {
+          if (worker.state === "activated" && /service-worker-v161\.js(?:$|\?)/.test(worker.scriptURL)) done();
+        }
+        inspect();
+        worker.addEventListener("statechange", inspect);
+      }
+      check(registration.active);
+      check(registration.waiting);
+      check(registration.installing);
+      registration.addEventListener("updatefound", function () {
+        check(registration.installing);
+      });
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (navigator.serviceWorker.controller &&
+            /service-worker-v161\.js(?:$|\?)/.test(navigator.serviceWorker.controller.scriptURL)) done();
+      });
+    });
+  }
   navigator.serviceWorker.register("./service-worker-v161.js", { updateViaCache: "none" })
     .then(function (registration) {
-      return registration.update().then(function () {
-        return navigator.serviceWorker.ready;
+      return registration.update().catch(function () {}).then(function () {
+        return waitForV161(registration);
       });
     })
     .then(openMainPage)
