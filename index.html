@@ -8,13 +8,36 @@
 <link rel="icon" type="image/png" href="./file_00000000543081faa661bcf1dd8abc6f.png">
 <link rel="apple-touch-icon" href="./file_00000000543081faa661bcf1dd8abc6f.png">
 <title>Muazzin Saheb</title>
-<meta http-equiv="refresh" content="0;url=./New%20Muazzin%20Saheb%20.html">
-<script>
-location.replace("./New%20Muazzin%20Saheb%20.html");
-</script>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#081f45}
+#site{display:block;width:100%;height:100%;height:100dvh;border:0;background:#081f45}
+</style>
 </head>
-<body style="margin:0;background:#081f45;color:white;font:700 16px sans-serif;text-align:center;padding:24px">
-Muazzin Saheb khol rahe hain…
-<p><a href="./New%20Muazzin%20Saheb%20.html" style="color:white">Agar page na khule to yahan tap karein</a></p>
+<body>
+<iframe id="site" src="./New%20Muazzin%20Saheb%20.html" title="Muazzin Saheb" allow="geolocation"></iframe>
+<script>
+(function(){
+  var frame=document.getElementById("site");
+  frame.addEventListener("load",function(){
+    try{
+      var win=frame.contentWindow, doc=frame.contentDocument;
+      var startY=0, pulling=false;
+      doc.addEventListener("touchstart",function(e){
+        if(!e.touches||e.touches.length!==1)return;
+        var scroller=doc.scrollingElement||doc.documentElement;
+        if(scroller.scrollTop<=0){startY=e.touches[0].clientY;pulling=true;}
+        else pulling=false;
+      },{passive:true});
+      doc.addEventListener("touchmove",function(e){
+        if(!pulling||!e.touches||e.touches.length!==1)return;
+        var delta=e.touches[0].clientY-startY;
+        var scroller=doc.scrollingElement||doc.documentElement;
+        if(delta>100&&scroller.scrollTop<=0){pulling=false;win.location.reload();}
+      },{passive:true});
+      doc.addEventListener("touchend",function(){pulling=false;},{passive:true});
+    }catch(e){}
+  });
+})();
+</script>
 </body>
 </html>
