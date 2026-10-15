@@ -8,53 +8,21 @@
 <link rel="icon" type="image/png" href="./file_00000000543081faa661bcf1dd8abc6f.png">
 <link rel="apple-touch-icon" href="./file_00000000543081faa661bcf1dd8abc6f.png">
 <title>Muazzin Saheb</title>
-<style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#081f45}iframe{display:block;border:0;width:100%;height:100%;height:100dvh;background:#081f45}</style>
 </head>
-<body>
-<iframe id="muazzinPage" src="./New%20Muazzin%20Saheb%20.html" title="Muazzin Saheb" allow="geolocation; notifications; clipboard-read; clipboard-write"></iframe>
+<body style="margin:0;background:#081f45;color:white;font:700 16px sans-serif;text-align:center;padding:24px">
+Muazzin Saheb khol rahe hain…
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
-}
-
-// Pull down from the top of the content to refresh, including inner scroll panels.
-const pageFrame = document.getElementById("muazzinPage");
-function enablePullToRefresh() {
-  try {
-    const doc = pageFrame.contentDocument;
-    if (!doc || doc.__muazzinPullRefreshEnabled) return;
-    doc.__muazzinPullRefreshEnabled = true;
-    let startY = 0;
-    let tracking = false;
-    let startTarget = null;
-    function isAtTop(target) {
-      let node = target && target.nodeType === 1 ? target : target && target.parentElement;
-      while (node && node !== doc.body && node !== doc.documentElement) {
-        const style = doc.defaultView.getComputedStyle(node);
-        const canScroll = /(auto|scroll|overlay)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 2;
-        if (canScroll) return node.scrollTop <= 1;
-        node = node.parentElement;
-      }
-      const scroller = doc.scrollingElement || doc.documentElement;
-      return Math.max(scroller.scrollTop || 0, doc.documentElement.scrollTop || 0, doc.body ? doc.body.scrollTop || 0 : 0) <= 1;
-    }
-    doc.addEventListener("touchstart", event => {
-      if (event.touches.length !== 1 || !isAtTop(event.target)) { tracking = false; return; }
-      startY = event.touches[0].clientY;
-      startTarget = event.target;
-      tracking = true;
-    }, {passive:true});
-    doc.addEventListener("touchend", event => {
-      if (!tracking || !event.changedTouches.length) return;
-      const distance = event.changedTouches[0].clientY - startY;
-      tracking = false;
-      if (distance >= 75 && isAtTop(startTarget)) pageFrame.contentWindow.location.reload();
-      startTarget = null;
-    }, {passive:true});
-    doc.addEventListener("touchcancel", () => { tracking = false; startTarget = null; }, {passive:true});
-  } catch (error) {}
-}
-pageFrame.addEventListener("load", enablePullToRefresh);
+(function () {
+  var target = "./New%20Muazzin%20Saheb%20.html";
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {}).finally(function () {
+      location.replace(target);
+    });
+  } else {
+    location.replace(target);
+  }
+})();
 </script>
+<noscript><a href="./New%20Muazzin%20Saheb%20.html" style="color:white">Yahan tap karein</a></noscript>
 </body>
 </html>
