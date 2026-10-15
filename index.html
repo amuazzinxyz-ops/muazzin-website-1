@@ -8,8 +8,20 @@
 <link rel="manifest" href="./manifest-v158.webmanifest">
 <link rel="icon" type="image/png" href="./file_00000000543081faa661bcf1dd8abc6f.png">
 <link rel="apple-touch-icon" href="./file_00000000543081faa661bcf1dd8abc6f.png">
-<meta http-equiv="refresh" content="0;url=./New%20Muazzin%20Saheb%20.html">
-<script>window.location.replace("./New%20Muazzin%20Saheb%20.html");</script>
+<script>
+(function () {
+  var target = "./New%20Muazzin%20Saheb%20.html";
+  function openMainPage() { window.location.replace(target); }
+  if (!("serviceWorker" in navigator)) {
+    openMainPage();
+    return;
+  }
+  navigator.serviceWorker.register("./service-worker-v158.js")
+    .then(function () { return navigator.serviceWorker.ready; })
+    .then(openMainPage)
+    .catch(openMainPage);
+})();
+</script>
 </head>
 <body>
 <p>Muazzin Saheb khul raha hai… <a href="./New%20Muazzin%20Saheb%20.html">Yahan tap karein</a>.</p>
