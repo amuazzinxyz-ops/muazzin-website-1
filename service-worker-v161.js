@@ -18,7 +18,7 @@ self.addEventListener("fetch", event => {
     let html = await response.text();
     let changed = false;
 
-    if (!/<link\\b[^>]*\\brel=["']manifest["']/i.test(html)) {
+    if (!/rel=["']manifest["']/i.test(html)) {
       const manifestLink = '<link rel="manifest" href="./manifest-v158.webmanifest">';
       html = html.includes("</head>") ? html.replace("</head>", manifestLink + "</head>") : manifestLink + html;
       changed = true;
@@ -37,13 +37,13 @@ self.addEventListener("fetch", event => {
   function enableButton(){
     var button = document.getElementById("pwaInstallBtn");
     if (!button) return;
-    button.disabled = false;
-    button.removeAttribute("disabled");
-    button.setAttribute("aria-disabled", "false");
-    button.style.setProperty("display", "block", "important");
-    button.style.setProperty("visibility", "visible", "important");
-    button.style.setProperty("opacity", "1", "important");
-    button.style.setProperty("pointer-events", "auto", "important");
+    if (button.disabled) button.disabled = false;
+    if (button.hasAttribute("disabled")) button.removeAttribute("disabled");
+    if (button.getAttribute("aria-disabled") !== "false") button.setAttribute("aria-disabled", "false");
+    if (button.style.getPropertyValue("display") !== "block") button.style.setProperty("display", "block", "important");
+    if (button.style.getPropertyValue("visibility") !== "visible") button.style.setProperty("visibility", "visible", "important");
+    if (button.style.getPropertyValue("opacity") !== "1") button.style.setProperty("opacity", "1", "important");
+    if (button.style.getPropertyValue("pointer-events") !== "auto") button.style.setProperty("pointer-events", "auto", "important");
   }
   window.addEventListener("beforeinstallprompt", function(event){
     event.preventDefault();
