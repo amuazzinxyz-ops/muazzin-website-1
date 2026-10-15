@@ -16,8 +16,12 @@
     openMainPage();
     return;
   }
-  navigator.serviceWorker.register("./service-worker-v159.js", { updateViaCache: "none" })
-    .then(function (registration) { return registration.update().then(function () { return navigator.serviceWorker.ready; }); })
+  navigator.serviceWorker.register("./service-worker-v160.js", { updateViaCache: "none" })
+    .then(function (registration) {
+      return registration.update().then(function () {
+        return navigator.serviceWorker.ready;
+      });
+    })
     .then(openMainPage)
     .catch(openMainPage);
 })();
