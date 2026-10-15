@@ -1,4 +1,4 @@
-const CACHE_NAME = "muazzin-pwa-v158";
+const CACHE_NAME = "muazzin-pwa-v159";
 self.addEventListener("install", event => {
   event.waitUntil(self.skipWaiting());
 });
@@ -11,8 +11,9 @@ self.addEventListener("fetch", event => {
     try {
       const response = await fetch(event.request);
       const url = new URL(event.request.url);
-      // Restore only the existing App Install button hidden by the page's V249 CSS.
-      if (url.pathname.endsWith("/New Muazzin Saheb .html") &&
+      // Decode the path before matching: URL.pathname keeps spaces percent-encoded.
+      // Restore visibility of the existing App Install button without changing page content.
+      if (decodeURIComponent(url.pathname).endsWith("/New Muazzin Saheb .html") &&
           response.ok && (response.headers.get("content-type") || "").includes("text/html")) {
         const html = await response.text();
         const patch = '<style id="v252-app-install-button-restore">#pwaInstallBtn{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}</style>';
