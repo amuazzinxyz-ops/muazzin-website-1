@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class AlarmReceiver extends BroadcastReceiver {
-    private static final String CHANNEL = "namaaz_reminders_v1";
+    private static final String CHANNEL = "namaaz_reminders_v2";
 
     @Override public void onReceive(Context context, Intent intent) {
         String prayer = intent.getStringExtra("prayer");
@@ -25,7 +25,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManager nm=(NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (nm.getNotificationChannel(CHANNEL)==null) {
-                Uri sound=android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+                Uri sound=android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI;
+                if (sound == null) sound=android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
                 AudioAttributes attrs=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
                 NotificationChannel ch=new NotificationChannel(CHANNEL,"Namaaz reminders",NotificationManager.IMPORTANCE_HIGH);
                 ch.setDescription("Prayer time notifications with sound");
