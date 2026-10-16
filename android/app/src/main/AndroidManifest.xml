@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:allowBackup="true"
-        android:label="Namaaz Time App Hanafi Shafai - Reminder"
+        android:label="Namaaz Time App Hanafi Shafai"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:usesCleartextTraffic="false">
         <activity
