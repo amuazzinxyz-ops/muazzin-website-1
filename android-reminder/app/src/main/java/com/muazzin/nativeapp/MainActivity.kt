@@ -3,6 +3,8 @@ package com.muazzin.nativeapp
 import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,19 +19,17 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import java.util.Calendar
 
 class MainActivity : Activity() {
     private val names = arrayOf("Fajr / फ़ज्र", "Zohar / ज़ुहर", "Asr / अस्र", "Maghrib / मग़रिब", "Isha / इशा")
     private val keys = arrayOf("fajr", "zohar", "asr", "maghrib", "isha")
     private val prefs by lazy { getSharedPreferences("native_prayer_reminders", MODE_PRIVATE) }
-    private val timeLabels = mutableListOf<TextView>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
         requestNotificationPermissionIfNeeded()
         showHome()
-        createNotificationChannel()
     }
 
     private fun showHome() {
@@ -69,7 +69,6 @@ class MainActivity : Activity() {
             text = "Daily reminder times / रोज़ाना रिमाइंडर का समय"
             textSize = 20f
         })
-        timeLabels.clear()
         keys.forEachIndexed { index, key ->
             val hour = prefs.getInt("${key}_hour", intArrayOf(5, 13, 16, 18, 20)[index])
             val minute = prefs.getInt("${key}_minute", 0)
@@ -90,29 +89,38 @@ class MainActivity : Activity() {
                     }, hour, minute, false).show()
                 }
             }
-            timeLabels.add(time)
             row.addView(time)
             root.addView(row)
         }
         root.addView(Button(this).apply {
             text = "Save and enable / محفوظ کریں اور آن کریں"
             setOnClickListener {
-                if (!canScheduleExactAlarms()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                            Uri.parse("package:$packageName")))
-                        Toast.makeText(this@MainActivity,
-                            "Allow exact alarms, then return and press Save again.",
-                            Toast.LENGTH_LONG).show()
-                        return@setOnClickListener
-                    }
+                if (!canScheduleExactAlarms() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                        Uri.parse("package:$packageName")))
+                    Toast.makeText(this@MainActivity,
+                        "Allow exact alarms, then return and press Save again.",
+                        Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                if (Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    requestNotificationPermissionIfNeeded()
+                    Toast.makeText(this@MainActivity,
+                        "Allow notifications, then press Save again.",
+                        Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
                 }
                 scheduleAll()
                 Toast.makeText(this@MainActivity,
-                    "Daily reminders scheduled. Test after allowing notifications and battery background activity.",
+                    "Daily reminders scheduled. Screen-off delivery must be tested on this phone.",
                     Toast.LENGTH_LONG).show()
                 showHome()
             }
+        })
+        root.addView(Button(this).apply {
+            text = "Test notification sound / नोटिफ़िकेशन जाँचें"
+            setOnClickListener { sendTestNotification() }
         })
         root.addView(Button(this).apply {
             text = "Back / वापस"
@@ -134,6 +142,31 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun sendTestNotification() {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestNotificationPermissionIfNeeded()
+            Toast.makeText(this, "Allow notifications first, then test again.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, AlarmReceiver.CHANNEL_ID)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this).setSound(Settings.System.DEFAULT_ALARM_ALERT_URI)
+        }
+        val notification = builder
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("Muazzin test reminder")
+            .setContentText("Notification sound test / नोटिफ़िकेशन की आवाज़ जाँच")
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setPriority(Notification.PRIORITY_MAX)
+            .setAutoCancel(true)
+            .build()
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(9999, notification)
+        Toast.makeText(this, "Test notification sent.", Toast.LENGTH_SHORT).show()
+    }
+
     private fun requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= 33 &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -143,21 +176,27 @@ class MainActivity : Activity() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-            val channel = android.app.NotificationChannel(
-                AlarmReceiver.CHANNEL_ID, "Namaaz reminders",
-                android.app.NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Daily prayer reminders with sound"
-                setSound(android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI,
-                    android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_ALARM).build())
-                enableVibration(true)
-            }
+            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            val channel = NotificationChannelCompat.create(this)
             manager.createNotificationChannel(channel)
         }
     }
 
     private fun formatTime(hour: Int, minute: Int) =
         String.format(java.util.Locale.getDefault(), "%02d:%02d", hour, minute)
+}
+
+private object NotificationChannelCompat {
+    fun create(activity: Activity): android.app.NotificationChannel {
+        return android.app.NotificationChannel(
+            AlarmReceiver.CHANNEL_ID, "Namaaz reminders",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Daily prayer reminders with sound"
+            setSound(Settings.System.DEFAULT_ALARM_ALERT_URI,
+                android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ALARM).build())
+            enableVibration(true)
+        }
+    }
 }
