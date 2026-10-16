@@ -116,14 +116,42 @@ public class MainActivity extends Activity {
         });
         root.addView(exact, new LinearLayout.LayoutParams(-1, dp(50)));
 
+        Button testNotification = new Button(this);
+        testNotification.setText("TEST NOTIFICATION / NOTIFICATION KI JANCH / सूचना जाँच");
+        testNotification.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestNotificationPermission();
+                Toast.makeText(this, "Pehle notification permission allow karein / पहले अनुमति दें / Allow notifications first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Intent test = new Intent(this, AlarmReceiver.class);
+            test.putExtra("prayer", "Test");
+            test.putExtra("id", 999);
+            sendBroadcast(test);
+            Toast.makeText(this, "Test notification bhej di / टेस्ट नोटिफिकेशन भेजी / Test notification sent.", Toast.LENGTH_SHORT).show();
+        });
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-1, dp(50));
+        tp.topMargin = dp(6);
+        root.addView(testNotification, tp);
+
         Button scheduleAll = new Button(this);
         scheduleAll.setText("SAVE & SCHEDULE REMINDERS");
         scheduleAll.setTextColor(Color.WHITE);
         scheduleAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff173f36));
         scheduleAll.setOnClickListener(v -> {
             persist();
+            AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !manager.canScheduleExactAlarms()) {
+                Toast.makeText(this, "Allow exact alarms / Exact alarm ki ijazat dein / सटीक अलार्म की अनुमति दें.", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                    Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+                return;
+            }
             if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestNotificationPermission();
+                Toast.makeText(this, "Allow notifications, then tap Save again / Notification allow karein, phir Save dabayein / अनुमति देकर फिर Save दबाएँ.", Toast.LENGTH_LONG).show();
+                return;
             }
             int count=0;
             for (int i=0;i<5;i++) { if (enabled[i]) { schedule(i); count++; } else cancel(i); }
@@ -161,10 +189,7 @@ public class MainActivity extends Activity {
     private void schedule(int i) {
         if (!enabled[i]) return;
         AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
-            Toast.makeText(this, "Tap Allow exact alarms, then save again.", Toast.LENGTH_LONG).show();
-            return;
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) return;
         Calendar next=Calendar.getInstance();
         next.set(Calendar.HOUR_OF_DAY,hours[i]); next.set(Calendar.MINUTE,minutes[i]); next.set(Calendar.SECOND,0); next.set(Calendar.MILLISECOND,0);
         if (next.getTimeInMillis() <= System.currentTimeMillis()) next.add(Calendar.DAY_OF_YEAR,1);
