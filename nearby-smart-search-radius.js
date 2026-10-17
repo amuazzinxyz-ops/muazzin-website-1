@@ -7,6 +7,9 @@ function init(){
  dlg.dataset.radiusGpsReady='1';
  var cats=dlg.querySelector('.mns-categories');
  if(!cats)return;
+ var masjidBtn=document.createElement('button');
+ masjidBtn.type='button';masjidBtn.id='mnsMasjid';masjidBtn.setAttribute('data-mns-query','masjid near me');masjidBtn.textContent='🕌 Nearby Masjid / नज़दीकी मस्जिद';
+ cats.insertBefore(masjidBtn,cats.firstChild);
  var controls=document.createElement('div');
  controls.innerHTML='<label for="mnsRadius" style="display:block;margin:9px 0 3px;font-weight:850">Kitne km ke andar? / Radius</label><select id="mnsRadius" style="width:100%;font:inherit;padding:10px;border:1px solid #c4b5fd;border-radius:9px;background:#fff;color:#172033"><option value="5">5 km — bilkul nazdeek</option><option value="10">10 km</option><option value="20">20 km</option></select><div id="mnsResults" style="display:grid;gap:7px;margin-top:9px"></div>';
  cats.insertAdjacentElement('afterend',controls);
