@@ -58,9 +58,15 @@ class MainActivity : Activity() {
         fun syncReminder(type: String, raw: String) {
             if (type != "namaz" && type != "hijri") return
             val marker = "last_sync_$type"
-            if (prefs.getString(marker, null) == raw) return
+            val exactPermissionMarker = "last_exact_alarm_allowed_$type"
+            val exactPermissionAllowed = canScheduleExactAlarms()
+            if (prefs.getString(marker, null) == raw &&
+                prefs.getBoolean(exactPermissionMarker, false) == exactPermissionAllowed) return
             val data = try { JSONObject(raw) } catch (_: Exception) { JSONObject() }
-            prefs.edit().putString(marker, raw).apply()
+            prefs.edit()
+                .putString(marker, raw)
+                .putBoolean(exactPermissionMarker, exactPermissionAllowed)
+                .apply()
             val id = if (type == "namaz") 5 else 6
             val label = if (type == "namaz") "Namaaz Reminder" else "Hijri Date Reminder"
             AddedReminderScheduler.sync(this@MainActivity, id, label, data)
