@@ -53,6 +53,6 @@ jobs:
           git rm .github/workflows/temporary-nearby-smart-search-fix.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "1.New Muazzin Saheb.Html"
+          git add "1.New.Muazzin Saheb.Html"
           git commit -m "Fix Nearby Smart Search blank tab"
           git push
