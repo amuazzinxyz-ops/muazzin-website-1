@@ -13,10 +13,10 @@ self.addEventListener("fetch", event => {
       const url = new URL(event.request.url);
       // Decode the path before matching: URL.pathname keeps spaces percent-encoded.
       // Restore visibility of the existing App Install button without changing page content.
-      if (decodeURIComponent(url.pathname).endsWith("/New Muazzin Saheb .html") &&
+      if ((decodeURIComponent(url.pathname).endsWith("/New Muazzin Saheb .html") || decodeURIComponent(url.pathname).endsWith("/1.New.Muazzin Saheb.Html")) &&
           response.ok && (response.headers.get("content-type") || "").includes("text/html")) {
         const html = await response.text();
-        const patch = '<style id="v252-app-install-button-restore">#pwaInstallBtn{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}</style>';
+        const patch = '<style id="v252-app-install-button-restore">#pwaInstallBtn{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}</style><script id="muazzin-nearby-radius-gps-loader" src="./nearby-smart-search-radius.js" defer></script>';
         if (!html.includes('id="v252-app-install-button-restore"')) {
           const patched = html.includes("</body>") ? html.replace("</body>", patch + "</body>") : html + patch;
           const headers = new Headers(response.headers);
