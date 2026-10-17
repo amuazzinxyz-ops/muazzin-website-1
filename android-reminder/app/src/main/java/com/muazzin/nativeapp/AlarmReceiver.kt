@@ -30,6 +30,6 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val CHANNEL_ID = "muazzin_prayer_reminders"
+        const val CHANNEL_ID = "muazzin_prayer_reminders_v2"
     }
 }
