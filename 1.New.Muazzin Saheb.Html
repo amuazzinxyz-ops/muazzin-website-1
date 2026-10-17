@@ -20561,34 +20561,18 @@ window.addEventListener('load',update);
   var query=normalize(q);
   status.dataset.state='custom';
   status.textContent=d.opening;
-  // Open the tab during the tap so mobile browsers do not block the later GPS-based navigation.
-  var win=null;
-  try{win=window.open('about:blank','_blank');}catch(e){}
-  function openMaps(finalQuery){
-    var url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(finalQuery);
-    if(win&&!win.closed){try{win.location.href=url;return;}catch(e){}}
-    window.open(url,'_blank','noopener');
-  }
-  // Only use GPS when the request means a nearby place; ordinary named-place searches stay unchanged.
+  // Open Google Maps directly from the user's tap; do not create a blank tab.
   var nearbyWords=/\b(nearby|near\s+me|mere\s+paas|mere\s+pass|mere\s+nazdeek|qareeb|ner\s+me|near\s+mi)\b|मेरे\s+पास|नज़दीक|قریب/i.test(q);
   var placeCategory=/\b(madrasa|madarsa|masjid|mosque|musjid|eidgah|restaurant|resturant|food|dhaba|halal|hotel|hostel|lodge|pharmacy|chemist|medical shop|hospital|doctor|clinic|dentist|bank|atm|cash machine|petrol pump|gas station|fuel station|grocery|supermarket|market|shop|store|bakery|mechanic|garage|parking|toilet|washroom|bus stop|railway station|train station|airport|school|college|university|library|park|police station|post office|मदरसा|मस्जिद|ईदगाह|अस्पताल|डॉक्टर|दुकान|दवा|पेट्रोल|बैंक|एटीएम|बाज़ार|बाजार|शौचालय)/i.test(q);
   var wantsNearby=nearbyWords||placeCategory||/\bnear\s+me\b/i.test(query);
-  if(!wantsNearby||!navigator.geolocation){openMaps(query);return}
-  status.textContent=d.opening;
-  navigator.geolocation.getCurrentPosition(function(pos){
-    var lat=Number(pos.coords.latitude),lon=Number(pos.coords.longitude);
-    if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){openMaps(query);return}
-    // Replace the generic "near me" wording with a real device coordinate for a more precise Maps search.
-    var specific=query.replace(/\bnear me\b/ig,'').replace(/\bnearby\b/ig,'').replace(/\bmere paas\b/ig,'').replace(/\bmere pass\b/ig,'').replace(/\bmere nazdeek\b/ig,'').replace(/\bqareeb( mein)?\b/ig,'').replace(/\bner me\b/ig,'').replace(/\bnear mi\b/ig,'').replace(/\s+/g,' ').trim();
-    if(!specific)specific=q;
-    status.textContent=d.ready;
-    openMaps(specific+' near '+lat.toFixed(6)+','+lon.toFixed(6));
-  },function(){
-    // Permission denied, GPS unavailable, or timeout: preserve a usable search and let Maps use its own location.
-    status.textContent=d.ready;
-    var fallbackQuery=wantsNearby&&!/\bnear\s+me\b/i.test(query)?query+' near me':query;
-    openMaps(fallbackQuery);
-  },{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+  var finalQuery=query;
+  if(wantsNearby&&!/\bnear\s+me\b/i.test(finalQuery)) finalQuery=finalQuery+' near me';
+  var url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(finalQuery);
+  try{
+    var opened=window.open(url,'_blank','noopener,noreferrer');
+    if(!opened){status.textContent=d.ready;window.location.href=url;return}
+  }catch(e){status.textContent=d.ready;window.location.href=url;return}
+  status.textContent=d.ready;
 }
  // Capture this new action before the existing generic menu handler; the old Masjid action remains untouched.
  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#muazzinNearbySmartSearchMenuBtn');if(!b)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();show()},true);
