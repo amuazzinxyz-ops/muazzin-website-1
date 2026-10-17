@@ -1,4 +1,5 @@
 /* Muazzin Nearby Smart Search: live GPS + strict 5/10/20 km filter. */
+/* Ensure the integrated HTML includes the Masjid quick-search button as well. */
 (function(){
 'use strict';
 function init(){
