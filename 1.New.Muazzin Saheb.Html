@@ -20568,11 +20568,10 @@ window.addEventListener('load',update);
   var finalQuery=query;
   if(wantsNearby&&!/\bnear\s+me\b/i.test(finalQuery)) finalQuery=finalQuery+' near me';
   var url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(finalQuery);
-  try{
-    var opened=window.open(url,'_blank','noopener,noreferrer');
-    if(!opened){status.textContent=d.ready;window.location.href=url;return}
-  }catch(e){status.textContent=d.ready;window.location.href=url;return}
+  // Navigate directly instead of opening a new tab. This avoids Android/PWA
+  // browsers leaving the user on about:blank when noopener blocks window handles.
   status.textContent=d.ready;
+  window.location.href=url;
 }
  // Capture this new action before the existing generic menu handler; the old Masjid action remains untouched.
  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#muazzinNearbySmartSearchMenuBtn');if(!b)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();show()},true);
