@@ -17,22 +17,22 @@ function init(){
   var n=String(q).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(nearby|near me|mere paas|mere pass|mere nazdeek|qareeb|qareeb mein|ner me|near mi)\b/g,' ').replace(/मेरे\s+पास|नज़दीक|قریب/g,' ').replace(/\s+/g,' ').trim(),s=[];
   function add(k,v){s.push('nwr(around:'+metres+','+lat+','+lon+')["'+k+'"="'+v+'"];')}
   function named(w){s.push('nwr(around:'+metres+','+lat+','+lon+')["name"~"'+w+'",i];')}
-  if(/\b(masjid|mosque|musjid|namaz|मस्जिद|مسجد)\b/.test(n)){add('amenity','place_of_worship');add('religion','muslim');named('masjid|mosque|musjid');}
-  else if(/\b(madrasa|madarsa|madrasah|madarasa|मदरसा|مدرسہ)\b/.test(n)){add('amenity','school');named('madrasa|madarsa|madrasah|مدرسہ');}
-  else if(/\b(eidgah|idgah|ईदगाह|عیدगाह)\b/.test(n)){add('amenity','place_of_worship');named('eid.?gah|id.?gah|ईदगाह');}
-  else if(/\b(restaurant|resturant|restorent|food|dhaba|halal|रेस्टोरेंट|रेस्तरां|खाना)\b/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
-  else if(/\b(hotel|hostel|lodge|stay|room|rehne|rahne|होटल|लॉज)\b/.test(n)){add('tourism','hotel');add('tourism','hostel');add('tourism','guest_house');add('tourism','motel');}
-  else if(/\b(pharmacy|chemist|medical|दवा)\b/.test(n)){add('amenity','pharmacy');}
-  else if(/\b(hospital|doctor|clinic|dentist|अस्पताल|डॉक्टर)\b/.test(n)){add('amenity','hospital');add('amenity','clinic');add('amenity','doctors');add('amenity','dentist');}
-  else if(/\b(bank|atm|cash machine|बैंक|एटीएम)\b/.test(n)){add('amenity','bank');add('amenity','atm');}
-  else if(/\b(petrol|fuel|gas station|पेट्रोल)\b/.test(n)){add('amenity','fuel');}
-  else if(/\b(grocery|supermarket|market|shop|store|bakery|बाज़ार|बाजार|दुकान)\b/.test(n)){add('shop','supermarket');add('shop','convenience');add('shop','bakery');add('amenity','marketplace');}
-  else if(/\b(school|college|university|library|स्कूल|कॉलेज)\b/.test(n)){add('amenity','school');add('amenity','college');add('amenity','university');add('amenity','library');}
-  else if(/\b(park|garden|पार्क)\b/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')["leisure"="park"];');}
-  else if(/\b(toilet|washroom|शौचालय)\b/.test(n)){add('amenity','toilets');}
-  else if(/\b(parking)\b/.test(n)){add('amenity','parking');}
-  else if(/\b(bus stop|bus station|railway|train station|airport)\b/.test(n)){add('highway','bus_stop');add('railway','station');add('aeroway','aerodrome');}
-  else if(/\b(police|post office)\b/.test(n)){add('amenity','police');add('amenity','post_office');}
+  if(/(masjid|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+') [\"amenity\"=\"place_of_worship\"][\"religion\"=\"muslim\"];');named('masjid|mosque|musjid|मस्जिद|مسجد');}
+  else if(/(madrasa|madarsa|madrasah|madarasa|मदरसा|مدرسہ)/.test(n)){add('amenity','school');named('madrasa|madarsa|madrasah|مدرسہ');}
+  else if(/(eidgah|idgah|ईदगाह|عیدगाह)/.test(n)){add('amenity','place_of_worship');named('eid.?gah|id.?gah|ईदगाह');}
+  else if(/(restaurant|resturant|restorent|food|dhaba|halal|रेस्टोरेंट|रेस्तरां|खाना)/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
+  else if(/(hotel|hostel|lodge|stay|room|rehne|rahne|होटल|लॉज)/.test(n)){add('tourism','hotel');add('tourism','hostel');add('tourism','guest_house');add('tourism','motel');}
+  else if(/(pharmacy|chemist|medical|दवा)/.test(n)){add('amenity','pharmacy');}
+  else if(/(hospital|doctor|clinic|dentist|अस्पताल|डॉक्टर)/.test(n)){add('amenity','hospital');add('amenity','clinic');add('amenity','doctors');add('amenity','dentist');}
+  else if(/(bank|atm|cash machine|बैंक|एटीएम)/.test(n)){add('amenity','bank');add('amenity','atm');}
+  else if(/(petrol|fuel|gas station|पेट्रोल)/.test(n)){add('amenity','fuel');}
+  else if(/(grocery|supermarket|market|shop|store|bakery|बाज़ार|बाजार|दुकान)/.test(n)){add('shop','supermarket');add('shop','convenience');add('shop','bakery');add('amenity','marketplace');}
+  else if(/(school|college|university|library|स्कूल|कॉलेज)/.test(n)){add('amenity','school');add('amenity','college');add('amenity','university');add('amenity','library');}
+  else if(/(park|garden|पार्क)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')["leisure"="park"];');}
+  else if(/(toilet|washroom|शौचालय)/.test(n)){add('amenity','toilets');}
+  else if(/(parking)/.test(n)){add('amenity','parking');}
+  else if(/(bus stop|bus station|railway|train station|airport)/.test(n)){add('highway','bus_stop');add('railway','station');add('aeroway','aerodrome');}
+  else if(/(police|post office)/.test(n)){add('amenity','police');add('amenity','post_office');}
   else {var w=n.replace(/[^a-z0-9 \u0900-\u097f-]/gi,' ').trim().split(/\s+/).filter(Boolean).slice(0,4).join('|').replace(/"/g,'');if(w)named(w);}
   return {query:'[out:json][timeout:20];('+s.join('')+');out center tags;',text:n};
  }
