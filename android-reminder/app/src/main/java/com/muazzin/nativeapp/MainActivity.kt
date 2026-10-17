@@ -53,6 +53,22 @@ class MainActivity : Activity() {
         setContentView(webView)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Android settings can pause WebView timers. Re-sync saved reminders immediately
+        // when returning from notification/exact-alarm settings.
+        if (::webView.isInitialized) {
+            webView.evaluateJavascript(
+                "(function(){try{['namaz','hijri'].forEach(function(t){" +
+                "var k=t==='namaz'?'muazzinAddedNamazReminder':'muazzinAddedHijriReminder';" +
+                "var raw=localStorage.getItem(k)||'{}';" +
+                "if(window.MuazzinReminderBridge)window.MuazzinReminderBridge.syncReminder(t,raw);" +
+                "});}catch(e){}})();",
+                null
+            )
+        }
+    }
+
     private inner class ReminderBridge {
         @JavascriptInterface
         fun syncReminder(type: String, raw: String) {
@@ -110,6 +126,7 @@ class MainActivity : Activity() {
                     Settings.System.DEFAULT_ALARM_ALERT_URI,
                     android.media.AudioAttributes.Builder()
                         .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
                 )
                 enableVibration(true)
