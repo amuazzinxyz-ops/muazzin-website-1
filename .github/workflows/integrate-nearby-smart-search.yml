@@ -36,8 +36,8 @@ jobs:
                   raise SystemExit('Safety check failed: integration script has no closing tag.')
               end = end_tag + len('</script>')
               source = source[:start] + addition + source[end:]
-              if source[end:end+3] == '\n\\n':
-                  source = source[:end] + '\n' + source[end+3:]
+              import re
+              source = re.sub(r'(</script>)(?:\s|\\n)*(<script id="muazzin-nearby-menu-language-fix">)', lambda m: m.group(1) + '\n' + m.group(2), source, count=1)
               print('Replaced existing integration with the current helper.')
           else:
               if source.count(marker) != 1:
