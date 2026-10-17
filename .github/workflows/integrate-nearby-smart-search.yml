@@ -16,6 +16,13 @@ jobs:
         with:
           ref: main
           token: ${{ github.token }}
+      - name: Back up main before changing the HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          backup_branch="backup/nearby-before-${GITHUB_SHA}"
+          git push origin "${GITHUB_SHA}:refs/heads/${backup_branch}"
+          echo "Created backup branch: ${backup_branch}"
       - name: Connect the radius search to the main HTML
         shell: bash
         run: |
