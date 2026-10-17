@@ -5,9 +5,9 @@
 function init(){
  var dlg=document.getElementById('muazzinNearbySmartDialog'),form=document.getElementById('mnsForm'),input=document.getElementById('mnsQuery'),status=document.getElementById('mnsStatus');
  if(!dlg||!form||!input||!status||dlg.dataset.radiusGpsReady)return;
- dlg.dataset.radiusGpsReady='1';
  var cats=dlg.querySelector('.mns-categories');
  if(!cats)return;
+ dlg.dataset.radiusGpsReady='1';
  var masjidBtn=document.createElement('button');
  masjidBtn.type='button';masjidBtn.id='mnsMasjid';masjidBtn.setAttribute('data-mns-query','masjid near me');masjidBtn.textContent='🕌 Nearby Masjid / नज़दीकी मस्जिद';
  cats.insertBefore(masjidBtn,cats.firstChild);
@@ -64,4 +64,9 @@ function init(){
  radius.addEventListener('change',function(){if(lastQuery)search(lastQuery)});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+/* The Nearby dialog may be created after the page loads. Retry initialization when it appears. */
+if(typeof MutationObserver!=='undefined'&&document.documentElement){
+ var nearbyInitObserver=new MutationObserver(function(){init();});
+ nearbyInitObserver.observe(document.documentElement,{childList:true,subtree:true});
+}
 })();
