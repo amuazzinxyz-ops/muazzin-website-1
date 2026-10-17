@@ -25,17 +25,24 @@ jobs:
           html = Path('1.New.Muazzin Saheb.Html')
           helper = Path('nearby-smart-search-radius.js')
           marker = '<script id="muazzin-nearby-menu-language-fix">'
-          integration_id = 'id="nearby-smart-radius-integration"'
+          integration_start = '<script id="nearby-smart-radius-integration">'
           source = html.read_text(encoding='utf-8')
           code = helper.read_text(encoding='utf-8')
-          if integration_id in source:
-              print('Nearby radius helper is already integrated; no change needed.')
-              raise SystemExit(0)
-          if source.count(marker) != 1:
-              raise SystemExit('Safety check failed: expected exactly one insertion marker.')
-          addition = '<script id="nearby-smart-radius-integration">\n' + code + '\n</script>\n'
-          html.write_text(source.replace(marker, addition + marker, 1), encoding='utf-8')
-          print('Inserted the existing helper at the verified Nearby Smart Search location.')
+          addition = integration_start + '\n' + code + '\n</script>\n'
+          if integration_start in source:
+              start = source.index(integration_start)
+              end_tag = source.find('</script>', start)
+              if end_tag < 0:
+                  raise SystemExit('Safety check failed: integration script has no closing tag.')
+              end = end_tag + len('</script>')
+              source = source[:start] + addition + source[end:]
+              print('Replaced existing integration with the current helper.')
+          else:
+              if source.count(marker) != 1:
+                  raise SystemExit('Safety check failed: expected exactly one insertion marker.')
+              source = source.replace(marker, addition + marker, 1)
+              print('Inserted the helper at the verified Nearby Smart Search location.')
+          html.write_text(source, encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
