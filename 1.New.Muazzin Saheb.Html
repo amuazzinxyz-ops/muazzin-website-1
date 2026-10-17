@@ -20561,17 +20561,39 @@ window.addEventListener('load',update);
   var query=normalize(q);
   status.dataset.state='custom';
   status.textContent=d.opening;
-  // Open Google Maps directly from the user's tap; do not create a blank tab.
   var nearbyWords=/\b(nearby|near\s+me|mere\s+paas|mere\s+pass|mere\s+nazdeek|qareeb|ner\s+me|near\s+mi)\b|मेरे\s+पास|नज़दीक|قریب/i.test(q);
   var placeCategory=/\b(madrasa|madarsa|masjid|mosque|musjid|eidgah|restaurant|resturant|food|dhaba|halal|hotel|hostel|lodge|pharmacy|chemist|medical shop|hospital|doctor|clinic|dentist|bank|atm|cash machine|petrol pump|gas station|fuel station|grocery|supermarket|market|shop|store|bakery|mechanic|garage|parking|toilet|washroom|bus stop|railway station|train station|airport|school|college|university|library|park|police station|post office|मदरसा|मस्जिद|ईदगाह|अस्पताल|डॉक्टर|दुकान|दवा|पेट्रोल|बैंक|एटीएम|बाज़ार|बाजार|शौचालय)/i.test(q);
   var wantsNearby=nearbyWords||placeCategory||/\bnear\s+me\b/i.test(query);
-  var finalQuery=query;
-  if(wantsNearby&&!/\bnear\s+me\b/i.test(finalQuery)) finalQuery=finalQuery+' near me';
-  var url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(finalQuery);
-  // Navigate directly instead of opening a new tab. This avoids Android/PWA
-  // browsers leaving the user on about:blank when noopener blocks window handles.
-  status.textContent=d.ready;
-  window.location.href=url;
+  function mapsUrl(term){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(term)}
+  var fallbackQuery=query;
+  if(wantsNearby&&!/\bnear\s+me\b/i.test(fallbackQuery)) fallbackQuery=fallbackQuery+' near me';
+  // Open a real Maps page synchronously from the tap; never open about:blank.
+  var opened=null;
+  try{opened=window.open(mapsUrl(fallbackQuery),'_blank')}catch(e){}
+  if(!wantsNearby||!navigator.geolocation){
+    status.textContent=d.ready;
+    if(!opened) window.location.href=mapsUrl(fallbackQuery);
+    return;
+  }
+  // Upgrade the already-open Maps tab to a coordinate-based search when GPS responds.
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=Number(pos.coords.latitude),lon=Number(pos.coords.longitude);
+    if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){
+      status.textContent=d.ready;
+      if(!opened) window.location.href=mapsUrl(fallbackQuery);
+      return;
+    }
+    var specific=query.replace(/\bnear\s+me\b/ig,'').replace(/\bnearby\b/ig,'').replace(/\bmere paas\b/ig,'').replace(/\bmere pass\b/ig,'').replace(/\bmere nazdeek\b/ig,'').replace(/\bqareeb( mein)?\b/ig,'').replace(/\bner me\b/ig,'').replace(/\bnear mi\b/ig,'').replace(/मेरे\s+पास/ig,'').replace(/नज़दीक/ig,'').replace(/قریب/ig,'').replace(/\s+/g,' ').trim();
+    if(!specific) specific=q;
+    var preciseUrl=mapsUrl(specific+' near '+lat.toFixed(6)+','+lon.toFixed(6));
+    status.textContent=d.ready;
+    if(opened&&!opened.closed){try{opened.location.href=preciseUrl;return}catch(e){}}
+    window.location.href=preciseUrl;
+  },function(){
+    // GPS denied/unavailable: the direct Maps near-me fallback remains usable.
+    status.textContent=d.ready;
+    if(!opened) window.location.href=mapsUrl(fallbackQuery);
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:30000});
 }
  // Capture this new action before the existing generic menu handler; the old Masjid action remains untouched.
  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#muazzinNearbySmartSearchMenuBtn');if(!b)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();show()},true);
