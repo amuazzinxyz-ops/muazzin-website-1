@@ -14,12 +14,12 @@ function init(){
  function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
  function distance(a,b,c,d){var p=Math.PI/180,dp=(c-a)*p,dl=(d-b)*p,x=Math.sin(dp/2)**2+Math.cos(a*p)*Math.cos(c*p)*Math.sin(dl/2)**2;return 6371*2*Math.asin(Math.min(1,Math.sqrt(x)))}
  function findTags(q,lat,lon,metres){
-  var n=String(q).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(nearby|near me|mere paas|mere pass|mere nazdeek|qareeb|qareeb mein|ner me|near mi)\b/g,' ').replace(/मेरे\s+पास|नज़दीक|قریب/g,' ').replace(/\s+/g,' ').trim(),s=[];
+  var n=String(q).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(nearby|near\s+by|near[- ]?me|mere\s+paas|mere\s+pas|mere\s+pass|mere\s+nazdeek|mere\s+nazdik|mere\s+qareeb|qareeb(?:\s+mein)?|ner\s+me|near\s+mi)\b/g,' ').replace(/मेरे\s*पास|मेरे\s*नज़दीक|नज़दीक|नजदीक|قریب/g,' ').replace(/\s+/g,' ').trim(),s=[];
   function add(k,v){s.push('nwr(around:'+metres+','+lat+','+lon+')["'+k+'"="'+v+'"];')}
   function named(w){s.push('nwr(around:'+metres+','+lat+','+lon+')["name"~"'+w+'",i];')}
   if(/(masjid|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=place_of_worship][religion=muslim];');named('masjid|mosque|musjid|मस्जिद|مسجد');}
-  else if(/(madrasa|madarsa|madrasah|madarasa|मदरसा|مدرسہ)/.test(n)){add('amenity','school');named('madrasa|madarsa|madrasah|مدرسہ');}
-  else if(/(eidgah|idgah|ईदगाह|عیدगाह)/.test(n)){add('amenity','place_of_worship');named('eid.?gah|id.?gah|ईदगाह');}
+  else if(/(madrasa|madarsa|madrasah|madarasa|madarssa|madrsa|मदरसा|مدرسہ)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=school][name~"madrasa|madarsa|madrasah|madarasa|madarssa|मदरसा|مدرسہ",i];');named('madrasa|madarsa|madrasah|madarasa|madarssa|मदरसा|مدرسہ');}
+  else if(/(eidgah|eid.?gah|idgah|id.?gah|ईदगाह|عیدगाह)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[name~"eid.?gah|id.?gah|ईदगाह|عیدगاہ",i];');named('eid.?gah|id.?gah|ईदगाह|عیدگاہ');}
   else if(/(restaurant|resturant|restorent|food|dhaba|halal|रेस्टोरेंट|रेस्तरां|खाना)/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
   else if(/(hotel|hostel|lodge|stay|room|rehne|rahne|होटल|लॉज)/.test(n)){add('tourism','hotel');add('tourism','hostel');add('tourism','guest_house');add('tourism','motel');}
   else if(/(pharmacy|chemist|medical|दवा)/.test(n)){add('amenity','pharmacy');}
@@ -52,7 +52,7 @@ function init(){
     results.innerHTML=items.slice(0,50).map(function(p){var label=p.km<1?Math.round(p.km*1000)+' m':p.km.toFixed(2)+' km',url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lat+','+p.lon);return '<a href="'+url+'" target="_blank" rel="noopener" style="display:block;padding:10px;border:1px solid #ddd6fe;border-radius:10px;background:#faf5ff;color:#172033;text-decoration:none"><strong>'+esc(p.name)+'</strong><div style="font-size:12px;color:#5b21b6;font-weight:800">'+label+' door · Google Maps mein dekhein ↗</div></a>'}).join('');
     status.textContent=items.length+' results '+km+' km ke andar; nearest-first. GPS accuracy ±'+Math.round(acc)+' m. Distance straight-line hai.';
    }).catch(function(){status.textContent='Nearby data service abhi busy hai. Internet ke baad dobara try karein. Radius result tabhi dikhaya jayega jab distance verify ho.'});
-  },function(e){status.textContent=e.code===1?'Location permission blocked. Android Settings > Apps > Chrome > Permissions > Location Allow karein.':e.code===2?'GPS location nahi mili. Phone Location ON karein.':'GPS timeout. Khuli jagah par dobara try karein.'},{enableHighAccuracy:true,timeout:15000,maximumAge:10000});
+  },function(e){status.textContent=e.code===1?'Location permission blocked. Android Settings > Apps > Chrome > Permissions > Location Allow karein.':e.code===2?'GPS location nahi mili. Phone Location ON karein.':'GPS timeout. Khuli jagah par dobara try karein.'},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
  }
  document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('#mnsSearchBtn,[data-mns-query]');if(!b)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();search(b.getAttribute('data-mns-query')||input.value)},true);
  document.addEventListener('submit',function(e){if(e.target!==form)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();search(input.value)},true);
