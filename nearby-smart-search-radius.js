@@ -21,10 +21,10 @@ function init(){
   var n=String(q).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(nearby|near\s+by|near[- ]?me|mere\s+paas|mere\s+pas|mere\s+pass|mere\s+nazdeek|mere\s+nazdik|mere\s+qareeb|qareeb(?:\s+mein)?|ner\s+me|near\s+mi)\b/g,' ').replace(/मेरे\s*पास|मेरे\s*नज़दीक|नज़दीक|नजदीक|قریب/g,' ').replace(/\s+/g,' ').trim(),s=[];
   function add(k,v){s.push('nwr(around:'+metres+','+lat+','+lon+')["'+k+'"="'+v+'"];')}
   function named(w){s.push('nwr(around:'+metres+','+lat+','+lon+')["name"~"'+w+'",i];')}
-  if(/(masjid|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=place_of_worship][religion=muslim];');named('masjid|mosque|musjid|मस्जिद|مسجد');}
+  if(/(masjid|masjit|masjidh|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=place_of_worship][religion=muslim];');named('masjid|masjit|masjidh|mosque|musjid|मस्जिद|مسجد');}
   else if(/(madrasa|madarsa|madrasah|madarasa|madarssa|madrsa|मदरसा|مدرسہ)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=school][name~"madrasa|madarsa|madrasah|madarasa|madarssa|मदरसा|مدرسہ",i];');named('madrasa|madarsa|madrasah|madarasa|madarssa|मदरसा|مدرسہ');}
   else if(/(eidgah|eid.?gah|idgah|id.?gah|ईदगाह|عیدगाह)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[name~"eid.?gah|id.?gah|ईदगाह|عیدगاہ",i];');named('eid.?gah|id.?gah|ईदगाह|عیدگاہ');}
-  else if(/(restaurant|resturant|restorent|restraunt|restaurent|restarant|resteraunt|food|khana|khaana|dhaba|halal|रेस्टोरेंट|रेस्तरां|रेस्तुरेंट|खाना|खाने|भोजन)/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
+  else if(/(restaurant|resturant|restorent|restraunt|restaurent|restarant|resteraunt|food|food place|khana|khaana|khane|khaane|khanay|khaney|dhaba|halal|रेस्टोरेंट|रेस्तरां|रेस्तुरेंट|खाना|खाने|भोजन)/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
   else if(/(hotel|hotle|hostel|hostal|lodge|lodging|stay|room|rooms|accommodation|rehne|rahne|rehna|thaharne|रहने|ठहरने|होटल|लॉज|कमरा|कमरे)/.test(n)){add('tourism','hotel');add('tourism','hostel');add('tourism','guest_house');add('tourism','motel');}
   else if(/(pharmacy|chemist|medical|दवा)/.test(n)){add('amenity','pharmacy');}
   else if(/(hospital|doctor|clinic|dentist|अस्पताल|डॉक्टर)/.test(n)){add('amenity','hospital');add('amenity','clinic');add('amenity','doctors');add('amenity','dentist');}
