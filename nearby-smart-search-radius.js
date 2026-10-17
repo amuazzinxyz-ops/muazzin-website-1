@@ -17,7 +17,7 @@ function init(){
   var n=String(q).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(nearby|near me|mere paas|mere pass|mere nazdeek|qareeb|qareeb mein|ner me|near mi)\b/g,' ').replace(/मेरे\s+पास|नज़दीक|قریب/g,' ').replace(/\s+/g,' ').trim(),s=[];
   function add(k,v){s.push('nwr(around:'+metres+','+lat+','+lon+')["'+k+'"="'+v+'"];')}
   function named(w){s.push('nwr(around:'+metres+','+lat+','+lon+')["name"~"'+w+'",i];')}
-  if(/(masjid|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+') [\"amenity\"=\"place_of_worship\"][\"religion\"=\"muslim\"];');named('masjid|mosque|musjid|मस्जिद|مسجد');}
+  if(/(masjid|mosque|musjid|namaz|मस्जिद|مسجد)/.test(n)){s.push('nwr(around:'+metres+','+lat+','+lon+')[amenity=place_of_worship][religion=muslim];');named('masjid|mosque|musjid|मस्जिद|مسجد');}
   else if(/(madrasa|madarsa|madrasah|madarasa|मदरसा|مدرسہ)/.test(n)){add('amenity','school');named('madrasa|madarsa|madrasah|مدرسہ');}
   else if(/(eidgah|idgah|ईदगाह|عیدगाह)/.test(n)){add('amenity','place_of_worship');named('eid.?gah|id.?gah|ईदगाह');}
   else if(/(restaurant|resturant|restorent|food|dhaba|halal|रेस्टोरेंट|रेस्तरां|खाना)/.test(n)){add('amenity','restaurant');add('amenity','fast_food');add('amenity','cafe');}
