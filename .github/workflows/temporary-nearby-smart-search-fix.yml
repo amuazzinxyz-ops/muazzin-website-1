@@ -1,0 +1,49 @@
+name: Temporary Nearby Smart Search navigation repair
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temporary-nearby-smart-search-fix.yml
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace blank-tab navigation with direct Maps navigation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("1.New.Muazzin Saheb.Html")
+          s = p.read_text(encoding="utf-8")
+          old = """  try{
+              var opened=window.open(url,'_blank','noopener,noreferrer');
+              if(!opened){status.textContent=d.ready;window.location.href=url;return}
+            }catch(e){status.textContent=d.ready;window.location.href=url;return}
+            status.textContent=d.ready;"""
+          new = """  // Navigate directly instead of opening a new tab. This avoids Android/PWA
+            // browsers leaving the user on about:blank when noopener blocks window handles.
+            status.textContent=d.ready;
+            window.location.href=url;"""
+          if s.count(old) != 1:
+              # Indentation can vary slightly; match the exact code without leading spaces.
+              old2 = """try{
+              var opened=window.open(url,'_blank','noopener,noreferrer');
+              if(!opened){status.textContent=d.ready;window.location.href=url;return}
+            }catch(e){status.textContent=d.ready;window.location.href=url;return}
+            status.textContent=d.ready;"""
+              if s.count(old2) != 1:
+                  raise SystemExit(f"Expected one navigation block; found {s.count(old)} and {s.count(old2)}. No HTML changed.")
+              s = s.replace(old2, new, 1)
+          else:
+              s = s.replace(old, new, 1)
+          p.write_text(s, encoding="utf-8")
+          PY
+          git rm .github/workflows/temporary-nearby-smart-search-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "1.New.Muazzin Saheb.Html"
+          git commit -m "Fix Nearby Smart Search about:blank navigation"
+          git push
