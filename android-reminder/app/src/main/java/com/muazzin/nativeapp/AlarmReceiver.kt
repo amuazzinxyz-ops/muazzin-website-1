@@ -19,13 +19,14 @@ class AlarmReceiver : BroadcastReceiver() {
             Notification.Builder(context).setSound(android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI)
         }.setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle("Muazzin reminder: $label")
-            .setContentText("Namaaz reminder waqt ho gaya hai. / नमाज़ का समय हो गया है।")
+            .setContentText(if (id == 6) "Hijri date reminder waqt ho gaya hai. / हिजरी तारीख़ रिमाइंडर का समय हो गया है।" else "Namaaz reminder waqt ho gaya hai. / नमाज़ का समय हो गया है।")
             .setCategory(Notification.CATEGORY_ALARM)
             .setPriority(Notification.PRIORITY_MAX)
             .setAutoCancel(true)
             .build()
         manager.notify(2000 + id, notification)
-        AlarmScheduler.rescheduleNext(context, id, label)
+        if (id in 5..6) AddedReminderScheduler.rescheduleAfterAlarm(context, id)
+        else AlarmScheduler.rescheduleNext(context, id, label)
     }
 
     companion object {
