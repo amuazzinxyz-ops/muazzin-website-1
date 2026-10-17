@@ -15,5 +15,6 @@ class BootReceiver : BroadcastReceiver() {
                 prefs.getInt("${key}_hour", defaults[index]),
                 prefs.getInt("${key}_minute", 0), names[index])
         }
+        AddedReminderScheduler.restoreAll(context)
     }
 }
