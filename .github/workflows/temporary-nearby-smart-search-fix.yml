@@ -1,0 +1,58 @@
+name: Temporary Nearby Smart Search repair
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temporary-nearby-smart-search-fix.yml
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch only Nearby Smart Search and remove temporary workflow
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("1.New.Muazzin Saheb.Html")
+          s = p.read_text(encoding="utf-8")
+          marker = "<!-- Nearby Smart Search: separate from the existing Nearby Masjid feature. -->"
+          region = s.find(marker)
+          start = s.find("function search(q){", region)
+          end_marker = " // Capture this new action before the existing generic menu handler; the old Masjid action remains untouched."
+          end = s.find(end_marker, start)
+          if region < 0 or start < 0 or end < 0:
+              raise SystemExit("Nearby Smart Search function not found; refusing to change the HTML.")
+          replacement = r"""function search(q){
+            q=String(q||input.value||'').trim();
+            var d=text[lang()]||text.roman;
+            if(!q){status.dataset.state='custom';status.textContent=d.empty;input.focus();return}
+            input.value=q;
+            var query=normalize(q);
+            status.dataset.state='custom';
+            status.textContent=d.opening;
+            // Open Google Maps directly from the user's tap; do not create a blank tab.
+            var nearbyWords=/\b(nearby|near\s+me|mere\s+paas|mere\s+pass|mere\s+nazdeek|qareeb|ner\s+me|near\s+mi)\b|मेरे\s+पास|नज़दीक|قریب/i.test(q);
+            var placeCategory=/\b(madrasa|madarsa|masjid|mosque|musjid|eidgah|restaurant|resturant|food|dhaba|halal|hotel|hostel|lodge|pharmacy|chemist|medical shop|hospital|doctor|clinic|dentist|bank|atm|cash machine|petrol pump|gas station|fuel station|grocery|supermarket|market|shop|store|bakery|mechanic|garage|parking|toilet|washroom|bus stop|railway station|train station|airport|school|college|university|library|park|police station|post office|मदरसा|मस्जिद|ईदगाह|अस्पताल|डॉक्टर|दुकान|दवा|पेट्रोल|बैंक|एटीएम|बाज़ार|बाजार|शौचालय)/i.test(q);
+            var wantsNearby=nearbyWords||placeCategory||/\bnear\s+me\b/i.test(query);
+            var finalQuery=query;
+            if(wantsNearby&&!/\bnear\s+me\b/i.test(finalQuery)) finalQuery=finalQuery+' near me';
+            var url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(finalQuery);
+            try{
+              var opened=window.open(url,'_blank','noopener,noreferrer');
+              if(!opened){status.textContent=d.ready;window.location.href=url;return}
+            }catch(e){status.textContent=d.ready;window.location.href=url;return}
+            status.textContent=d.ready;
+          }
+          """
+          s = s[:start] + replacement + s[end:]
+          p.write_text(s, encoding="utf-8")
+          PY
+          git rm .github/workflows/temporary-nearby-smart-search-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "1.New Muazzin Saheb.Html"
+          git commit -m "Fix Nearby Smart Search blank tab"
+          git push
